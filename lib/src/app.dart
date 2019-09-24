@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maps_geolocation/src/ui/home.dart';
 
 class App extends StatelessWidget {
   @override
@@ -6,9 +7,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Maps and Geolocation',
       debugShowCheckedModeBanner: false,
-      home: Container(
-        color: Colors.white,
-      ),
+      home: Home()
     );
   }
 }
