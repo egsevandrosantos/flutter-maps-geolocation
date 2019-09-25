@@ -11,6 +11,12 @@ class _HomeState extends State<Home> {
   HomeBloc bloc = HomeBloc();
 
   @override
+  void initState() {
+    super.initState();
+    bloc.checkPermissionLocal();
+  }
+
+  @override
   void dispose() {
     bloc.dispose();
     super.dispose();
@@ -20,14 +26,26 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder(
-        stream: bloc.mapTypeFetcher,
-        builder: (context, AsyncSnapshot<MapType> snapshot) {
-          return GoogleMap(
-            mapType: snapshot.data ?? bloc.mapType,
-            initialCameraPosition: bloc.kGooglePlex,
-            onMapCreated: (GoogleMapController controller) {
-              bloc.controller.complete(controller);
-            },
+        stream: bloc.checkPermissionLocalIsLoadingFetcher,
+        builder: (context, AsyncSnapshot<bool> isLoadingObject) {
+          if (isLoadingObject.hasData && !isLoadingObject.data) {
+            return StreamBuilder(
+              stream: bloc.mapTypeFetcher,
+              builder: (context, AsyncSnapshot<MapType> mapTypeObject) {
+                return GoogleMap(
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  mapType: mapTypeObject.data ?? bloc.mapType,
+                  initialCameraPosition: bloc.kGooglePlex,
+                  onMapCreated: (GoogleMapController controller) {
+                    bloc.controller.complete(controller);
+                  },
+                );
+              },
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
           );
         },
       ),
