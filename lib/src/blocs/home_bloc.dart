@@ -8,7 +8,7 @@ class HomeBloc {
   Completer<GoogleMapController> _controller = Completer();
   final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+    zoom: 14,
   );
   final CameraPosition _kLake = CameraPosition(
     bearing: 192.8334901395799,
@@ -54,5 +54,27 @@ class HomeBloc {
 
   Future<void> requestPermissionLocal() async {
     await _permissionService.requestPermission(PermissionGroup.location);
+  }
+
+  void moveCamera() async {
+    GoogleMapController googleMapController = await _controller.future;
+    LatLngBounds currentRegion = await googleMapController.getVisibleRegion();
+    LatLng center = calculeCenterByRegion(currentRegion);
+    googleMapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: center,
+          zoom: 14,
+          tilt: 60,
+          bearing: 180
+        )
+      )
+    );
+  }
+
+  LatLng calculeCenterByRegion(LatLngBounds currentRegion) {
+    double lat = (currentRegion.northeast.latitude + currentRegion.southwest.latitude) / 2;
+    double lon = (currentRegion.northeast.longitude + currentRegion.southwest.longitude) / 2;
+    return LatLng(lat, lon);
   }
 }

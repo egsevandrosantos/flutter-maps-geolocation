@@ -56,24 +56,46 @@ class _HomeState extends State<Home> {
         },
       ),
       floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          FloatingActionButton(
-            onPressed: () { 
-              bloc.changeVisualization();
-              _showAlertVisualization(bloc.mapType);
-            },
-            tooltip: 'Alterar visualização',
-            child: Icon(Icons.remove_red_eye),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(left: 30),
+                  child: FloatingActionButton(
+                    onPressed: () => bloc.moveCamera(),
+                    tooltip: 'Movimentar Câmera',
+                    child: Icon(Icons.camera),
+                  )
+                )
+              ],
+            ),
           ),
 
-          SizedBox(width: 10),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FloatingActionButton(
+                  onPressed: () { 
+                    bloc.changeVisualization();
+                    _showAlertVisualization(bloc.mapType);
+                  },
+                  tooltip: 'Alterar visualização',
+                  child: Icon(Icons.remove_red_eye),
+                ),
 
-          FloatingActionButton(
-            tooltip: 'To the lake!',
-            onPressed: () => bloc.goToTheLake(),
-            child: Icon(Icons.directions_boat),
-          ),
+                SizedBox(width: 10),
+
+                FloatingActionButton(
+                  tooltip: 'To the lake!',
+                  onPressed: () => bloc.goToTheLake(),
+                  child: Icon(Icons.directions_boat),
+                ),
+              ],
+            ),
+          )
         ],
       )
     );
