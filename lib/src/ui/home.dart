@@ -25,6 +25,12 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Mapas e Geolocalização'
+        ),
+        centerTitle: true,
+      ),
       body: StreamBuilder(
         stream: bloc.checkPermissionLocalIsLoadingFetcher,
         builder: (context, AsyncSnapshot<bool> isLoadingObject) {
