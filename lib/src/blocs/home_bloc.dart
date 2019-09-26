@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:maps_geolocation/src/services/permission_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -21,6 +22,7 @@ class HomeBloc {
   PermissionService _permissionService = PermissionService();
   final PublishSubject<bool> _checkPermissionLocalIsLoadingFetcher = PublishSubject<bool>();
   Set<Marker> _markers = Set<Marker>();
+  Set<Polygon> _polygons = Set<Polygon>();
 
   Completer<GoogleMapController> get controller => _controller;
   CameraPosition get kGooglePlex => _kGooglePlex;
@@ -28,6 +30,7 @@ class HomeBloc {
   MapType get mapType => _mapType;
   Observable<bool> get checkPermissionLocalIsLoadingFetcher => _checkPermissionLocalIsLoadingFetcher.stream;
   Set<Marker> get markers => _markers;
+  Set<Polygon> get polygons => _polygons;
 
   Future<void> goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
@@ -61,6 +64,48 @@ class HomeBloc {
       )
     );
     _markers.add(markerAcademy);
+  }
+
+  void createPolygons() {
+    _polygons = Set<Polygon>();
+
+    Polygon polygon1 = new Polygon(
+      polygonId: PolygonId("polygon1"),
+      fillColor: Colors.green,
+      strokeColor: Colors.red,
+      strokeWidth: 10,
+      points: [
+        LatLng(-21.763881, -48.171318),
+        LatLng(-21.763772, -48.170586),
+        LatLng(-21.764095, -48.170463),
+        LatLng(-21.764200, -48.171184)
+      ],
+      consumeTapEvents: true,
+      onTap: () {
+        print('Polygon');
+      },
+      zIndex: 1
+    );
+    _polygons.add(polygon1);
+
+    Polygon polygon2 = new Polygon(
+      polygonId: PolygonId("polygon2"),
+      fillColor: Colors.blue,
+      strokeColor: Colors.yellow,
+      strokeWidth: 10,
+      points: [
+        LatLng(-21.764358, -48.171186),
+        LatLng(-21.763850, -48.171524),
+        LatLng(-21.763591, -48.170548),
+        LatLng(-21.764069, -48.170258)
+      ],
+      consumeTapEvents: true,
+      onTap: () {
+        print('Polygon');
+      },
+      zIndex: 0
+    );
+    _polygons.add(polygon2);
   }
 
   void changeVisualization() {
