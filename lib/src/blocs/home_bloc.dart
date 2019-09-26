@@ -20,16 +20,47 @@ class HomeBloc {
   final PublishSubject<MapType> _mapTypeFetcher = PublishSubject<MapType>();
   PermissionService _permissionService = PermissionService();
   final PublishSubject<bool> _checkPermissionLocalIsLoadingFetcher = PublishSubject<bool>();
+  Set<Marker> _markers = Set<Marker>();
 
   Completer<GoogleMapController> get controller => _controller;
   CameraPosition get kGooglePlex => _kGooglePlex;
   Observable<MapType> get mapTypeFetcher => _mapTypeFetcher.stream;
   MapType get mapType => _mapType;
   Observable<bool> get checkPermissionLocalIsLoadingFetcher => _checkPermissionLocalIsLoadingFetcher.stream;
+  Set<Marker> get markers => _markers;
 
   Future<void> goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  }
+
+  void createMarkers() {
+    _markers = Set<Marker>();
+
+    Marker markerSpaceCoffee = Marker(
+      markerId: MarkerId("space-coffee"),
+      position: LatLng(-21.764177, -48.170265),
+      infoWindow: InfoWindow(
+        title: "Espaço Café Araraquara"
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueMagenta
+      ),
+      rotation: 270,
+      onTap: () {
+        print('Espaço Café Araraquara');
+      }
+    );
+    _markers.add(markerSpaceCoffee);
+
+    Marker markerAcademy = Marker(
+      markerId: MarkerId("academy"),
+      position: LatLng(-21.762896, -48.167946),
+      infoWindow: InfoWindow(
+        title: "Miskey Academia"
+      )
+    );
+    _markers.add(markerAcademy);
   }
 
   void changeVisualization() {

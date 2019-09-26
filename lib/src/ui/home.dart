@@ -14,6 +14,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     bloc.checkPermissionLocal();
+    bloc.createMarkers();
   }
 
   @override
@@ -43,6 +44,7 @@ class _HomeState extends State<Home> {
                   myLocationButtonEnabled: true,
                   mapType: mapTypeObject.data ?? bloc.mapType,
                   initialCameraPosition: bloc.kGooglePlex,
+                  markers: bloc.markers,
                   onMapCreated: (GoogleMapController controller) {
                     bloc.controller.complete(controller);
                   },
