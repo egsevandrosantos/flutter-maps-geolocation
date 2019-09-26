@@ -23,6 +23,7 @@ class HomeBloc {
   final PublishSubject<bool> _checkPermissionLocalIsLoadingFetcher = PublishSubject<bool>();
   Set<Marker> _markers = Set<Marker>();
   Set<Polygon> _polygons = Set<Polygon>();
+  Set<Polyline> _polylines = Set<Polyline>();
 
   Completer<GoogleMapController> get controller => _controller;
   CameraPosition get kGooglePlex => _kGooglePlex;
@@ -31,6 +32,7 @@ class HomeBloc {
   Observable<bool> get checkPermissionLocalIsLoadingFetcher => _checkPermissionLocalIsLoadingFetcher.stream;
   Set<Marker> get markers => _markers;
   Set<Polygon> get polygons => _polygons;
+  Set<Polyline> get polylines => _polylines;
 
   Future<void> goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
@@ -77,8 +79,7 @@ class HomeBloc {
       points: [
         LatLng(-21.763881, -48.171318),
         LatLng(-21.763772, -48.170586),
-        LatLng(-21.764095, -48.170463),
-        LatLng(-21.764200, -48.171184)
+        LatLng(-21.764095, -48.170463)
       ],
       consumeTapEvents: true,
       onTap: () {
@@ -106,6 +107,29 @@ class HomeBloc {
       zIndex: 0
     );
     _polygons.add(polygon2);
+  }
+
+  void createPolylines() {
+    _polylines = Set<Polyline>();
+
+    Polyline polyline1 = new Polyline(
+      polylineId: PolylineId("polyline1"),
+      color: Colors.red,
+      width: 20,
+      points: [
+        LatLng(-21.762710, -48.167966),
+        LatLng(-21.763682, -48.169103),
+        LatLng(-21.762425, -48.169247)
+      ],
+      startCap: Cap.roundCap,
+      endCap: Cap.squareCap,
+      jointType: JointType.bevel,
+      consumeTapEvents: true,
+      onTap: () {
+        print('Polyline');
+      }
+    );
+    _polylines.add(polyline1);
   }
 
   void changeVisualization() {
