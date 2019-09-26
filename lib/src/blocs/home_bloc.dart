@@ -246,4 +246,26 @@ class HomeBloc {
     double lon = (currentRegion.northeast.longitude + currentRegion.southwest.longitude) / 2;
     return LatLng(lat, lon);
   }
+
+  Future<Position> addressToPosition(String address) async {
+    List<Placemark> placemarks = await Geolocator().placemarkFromAddress(address);
+    if (placemarks != null && placemarks.length > 0) {
+      Placemark place = placemarks.first;
+      return place.position;
+    }
+    return null;
+  }
+
+  Future<Position> coordinatesToPosition(double lat, double lon) async {
+    List<Placemark> placemarks = await Geolocator().placemarkFromCoordinates(lat, lon);
+    if (placemarks != null && placemarks.length > 0) {
+      Placemark place = placemarks.first;
+      return place.position;
+    }
+    return null;
+  }
+
+  Future<double> distanceBetween(LatLng position1, LatLng position2) async {
+    return await Geolocator().distanceBetween(position1.latitude, position1.longitude, position2.latitude, position2.longitude);
+  }
 }
