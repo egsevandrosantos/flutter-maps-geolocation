@@ -45,7 +45,7 @@ class _HomeState extends State<Home> {
                   myLocationEnabled: true,
                   myLocationButtonEnabled: true,
                   mapType: mapTypeObject.data ?? bloc.mapType,
-                  initialCameraPosition: bloc.kGooglePlex,
+                  initialCameraPosition: bloc.currentPosition ?? bloc.kGooglePlex,
                   markers: bloc.markers,
                   polygons: bloc.polygons,
                   polylines: bloc.polylines,

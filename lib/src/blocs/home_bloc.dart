@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:maps_geolocation/src/services/permission_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,8 +10,9 @@ class HomeBloc {
   Completer<GoogleMapController> _controller = Completer();
   final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14,
+    zoom: 14
   );
+  CameraPosition _currentPosition;
   final CameraPosition _kLake = CameraPosition(
     bearing: 192.8334901395799,
     target: LatLng(37.43296265331129, -122.08832357078792),
@@ -27,6 +29,7 @@ class HomeBloc {
 
   Completer<GoogleMapController> get controller => _controller;
   CameraPosition get kGooglePlex => _kGooglePlex;
+  CameraPosition get currentPosition => _currentPosition;
   Observable<MapType> get mapTypeFetcher => _mapTypeFetcher.stream;
   MapType get mapType => _mapType;
   Observable<bool> get checkPermissionLocalIsLoadingFetcher => _checkPermissionLocalIsLoadingFetcher.stream;
@@ -145,10 +148,22 @@ class HomeBloc {
     _checkPermissionLocalIsLoadingFetcher.close();
   }
 
+  Future<void> getCurrentPosition() async {
+    GeolocationStatus geolocationStatus  = await Geolocator().checkGeolocationPermissionStatus();
+    if (geolocationStatus == GeolocationStatus.granted) {
+      Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      _currentPosition = CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 18
+      );
+    }
+  }
+
   Future<void> checkPermissionLocal() async {
     _checkPermissionLocalIsLoadingFetcher.sink.add(true);
     bool havePermission = await _permissionService.checkPermission(PermissionGroup.location);
     if (!havePermission) await requestPermissionLocal();
+    await this.getCurrentPosition();
     _checkPermissionLocalIsLoadingFetcher.sink.add(false);
   }
 
