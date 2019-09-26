@@ -24,6 +24,7 @@ class HomeBloc {
   PermissionService _permissionService = PermissionService();
   final PublishSubject<bool> _checkPermissionLocalIsLoadingFetcher = PublishSubject<bool>();
   Set<Marker> _markers = Set<Marker>();
+  final PublishSubject<Set<Marker>> _markersFetcher = PublishSubject<Set<Marker>>();
   Set<Polygon> _polygons = Set<Polygon>();
   Set<Polyline> _polylines = Set<Polyline>();
 
@@ -34,6 +35,7 @@ class HomeBloc {
   MapType get mapType => _mapType;
   Observable<bool> get checkPermissionLocalIsLoadingFetcher => _checkPermissionLocalIsLoadingFetcher.stream;
   Set<Marker> get markers => _markers;
+  Observable<Set<Marker>> get markersFetcher => _markersFetcher.stream;
   Set<Polygon> get polygons => _polygons;
   Set<Polyline> get polylines => _polylines;
 
@@ -69,6 +71,8 @@ class HomeBloc {
       )
     );
     _markers.add(markerAcademy);
+
+    _markersFetcher.sink.add(_markers);
   }
 
   void createPolygons() {
@@ -146,17 +150,31 @@ class HomeBloc {
   dispose() {
     _mapTypeFetcher.close();
     _checkPermissionLocalIsLoadingFetcher.close();
+    _markersFetcher.close();
   }
 
   Future<void> getCurrentPosition() async {
     GeolocationStatus geolocationStatus  = await Geolocator().checkGeolocationPermissionStatus();
     if (geolocationStatus == GeolocationStatus.granted) {
+      listenerGeolocation();
       Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       _currentPosition = CameraPosition(
         target: LatLng(position.latitude, position.longitude),
         zoom: 18
       );
     }
+  }
+
+  void listenerGeolocation() {
+    LocationOptions locationOptions = LocationOptions(
+      accuracy: LocationAccuracy.high, 
+      distanceFilter: 10
+    );
+
+    Geolocator().getPositionStream(locationOptions).listen((Position position) {
+      if (position != null) 
+        moveCamera(position: position);  
+    });
   }
 
   Future<void> checkPermissionLocal() async {
@@ -171,20 +189,56 @@ class HomeBloc {
     await _permissionService.requestPermission(PermissionGroup.location);
   }
 
-  void moveCamera() async {
+  void moveCamera({Position position}) async {
     GoogleMapController googleMapController = await _controller.future;
-    LatLngBounds currentRegion = await googleMapController.getVisibleRegion();
-    LatLng center = calculeCenterByRegion(currentRegion);
-    googleMapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: center,
-          zoom: 14,
-          tilt: 60,
-          bearing: 180
+    if (position != null) {
+      Marker markerUser = Marker(
+        markerId: MarkerId('position-user'),
+        position: LatLng(position.latitude, position.longitude),
+        infoWindow: InfoWindow(
+          title: "Meu local"
         )
-      )
-    );
+      );
+      Marker markerUserOnList;
+      //StateError (Bad state: No element)
+      try {
+        markerUserOnList = markers.firstWhere((marker) => marker != null && marker.markerId.value == markerUser.markerId.value);
+      } on StateError catch (err) {
+        if (err.message == 'No element')
+          markerUserOnList = null;
+        else
+          throw new Exception(err.message);
+      }
+      
+      if (markerUserOnList != null)
+        markerUserOnList = markerUser;
+      else
+        _markers.add(markerUser);
+
+      _markersFetcher.sink.add(_markers);
+      
+      googleMapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 16,
+          )
+        )
+      );    
+    } else {
+      LatLngBounds currentRegion = await googleMapController.getVisibleRegion();
+      LatLng center = calculeCenterByRegion(currentRegion);
+      googleMapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: center,
+            zoom: 14,
+            tilt: 60,
+            bearing: 180
+          )
+        )
+      );
+    }
   }
 
   LatLng calculeCenterByRegion(LatLngBounds currentRegion) {

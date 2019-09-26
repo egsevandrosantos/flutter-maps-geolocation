@@ -41,16 +41,21 @@ class _HomeState extends State<Home> {
             return StreamBuilder(
               stream: bloc.mapTypeFetcher,
               builder: (context, AsyncSnapshot<MapType> mapTypeObject) {
-                return GoogleMap(
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  mapType: mapTypeObject.data ?? bloc.mapType,
-                  initialCameraPosition: bloc.currentPosition ?? bloc.kGooglePlex,
-                  markers: bloc.markers,
-                  polygons: bloc.polygons,
-                  polylines: bloc.polylines,
-                  onMapCreated: (GoogleMapController controller) {
-                    bloc.controller.complete(controller);
+                return StreamBuilder(
+                  stream: bloc.markersFetcher,
+                  builder: (context, AsyncSnapshot<Set<Marker>> markersObject) {
+                    return GoogleMap(
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      mapType: mapTypeObject.data ?? bloc.mapType,
+                      initialCameraPosition: bloc.currentPosition ?? bloc.kGooglePlex,
+                      markers: markersObject.data ?? bloc.markers,
+                      polygons: bloc.polygons,
+                      polylines: bloc.polylines,
+                      onMapCreated: (GoogleMapController controller) {
+                        bloc.controller.complete(controller);
+                      },
+                    );
                   },
                 );
               },
